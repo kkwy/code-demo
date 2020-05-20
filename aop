@@ -1,0 +1,46 @@
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface Log {
+    String value() default "";
+}
+
+
+
+
+@Aspect
+@Component
+public class AopTest {
+    /**
+     * 定义切入点，切入点为com.example.demo.aop.AopController中的所有函数
+     *通过@Pointcut注解声明频繁使用的切点表达式
+     */
+    @Pointcut("@annotation(log)")
+    public void pointcut(Log log) {
+    }
+
+    /**
+     * @description  使用环绕通知
+     */
+    @Around("pointcut(log)")
+    public void doAroundGameData(ProceedingJoinPoint pjp,Log log) throws Throwable {
+        try{
+            System.out.println(log.value());
+            System.out.println("方法执行前");
+            pjp.proceed();
+            System.out.println("方法执行后" );
+        }
+        catch(Throwable e){
+            System.out.println("方法抛出异常");
+        }
+    }
+}
+
+
+@Service
+public class TestService {
+    @Log("33333")
+    public void aopTest(int scop){
+        int a=23/0;
+        System.out.println("方法执行");
+    }
+}
